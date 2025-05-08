@@ -4,10 +4,11 @@ from config.db import getConnection
 conn = getConnection()
 cursor = conn.cursor()
 
-query = "INSERT INTO partidas_historico(loca, clube_mandante_id, clube_visitante_id, placar_mandante, placar_visitante," \
+query = "INSERT INTO partidas_historico (local, clube_mandante_id, clube_visitante_id, placar_mandante, placar_visitante, " \
         "clube_mandante_posicao, clube_visitante_posicao, aproveitamento_mandante, aproveitamento_visitante, rodada_id) " \
-        "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
+print(query)
 for n in range(1, 8):
     
     data = requests.get("https://api.cartola.globo.com/partidas/" + str(n))
@@ -24,7 +25,7 @@ for n in range(1, 8):
         mandId = i["clube_casa_id"]
         visiId = i["clube_visitante_id"]
         rodadaId = str(n)
-        dados = [local, mandId, visiId, placarM, placarV, posiM, posiV, aprovM, aprovV, rodadaId]
+        dados = (local, mandId, visiId, placarM, placarV, posiM, posiV, str(aprovM), str(aprovV), rodadaId)
         cursor.execute(query, dados)
 
 
