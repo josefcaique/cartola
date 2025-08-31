@@ -1,24 +1,21 @@
 import requests
 import json
-#from config.db import getConnection
-
-
-#conn = getConnection()
-#cursor = conn.cursor()
-
-
-query = "INSERT INTO clubes VALUES (%s, %s, %s, %s, %s)"
+import pandas as pd
 
 data = requests.get("https://api.cartola.globo.com/clubes")
 json = data.json()
+data = []
 for k in json:
     value = json[k]
     name = value["nome"]
-    abr = value["abreviacao"]
+    abb = value["abreviacao"]
     slug = value["slug"]
+    surname = value["apelido"]
     fantasy_name = value["nome_fantasia"]
-    id = str(value["id"])
+    id = value["id"]
 
-    data = (id, name, abr, slug, fantasy_name)
-    print(data)
-    
+    data.append([id, name, abb, slug, surname, fantasy_name])
+header = ["Id", "Nome", "Abreviacao", "Slug", "Apelido", "Nome_Fantasia"]
+df_clubes = pd.DataFrame(data, columns=header)
+
+df_clubes.to_csv("data/clubes.csv")
