@@ -1,35 +1,32 @@
 import requests
 import json
-from config.db import getConnection
+import pandas as pd
+
+data = []
+
+for i in range(1, 22):
+    request = requests.get("https://api.cartola.globo.com/atletas/pontuados/"+str(i))
+    json = request.json()
 
 
-
-
-
-conn = getConnection()
-cursor = conn.cursor()
-for i in range(1, 8):
-    data = requests.get("https://api.cartola.globo.com/atletas/pontuados/"+str(i))
-    jsonData = data.json()
-    query = "INSERT INTO atleta_pontuacao(apelido, atleta_id, pontuacao, posicao_id, clube_id, rodada_id, entrou_em_campo, scouts) " \
-            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-
-    for item in jsonData:
-        for j in jsonData[item]:
+    for item in json:
+        for j in json[item]:
+            
             atleta_id = j
-            apelido = jsonData[item][j]["apelido"]
-            pontuacao = jsonData[item][j]["pontuacao"]
-            posicao_id = jsonData[item][j]["posicao_id"]
-            clube_id = jsonData[item][j]["clube_id"]
-            em_Campo = jsonData[item][j]["entrou_em_campo"]
-            scouts = json.dumps(jsonData[item][j]["scout"])
+            apelido = json[item][j]["apelido"]
+            pontuacao = json[item][j]["pontuacao"]
+            posicao_id = json[item][j]["posicao_id"]
+            clube_id = json[item][j]["clube_id"]
+            em_Campo = json[item][j]["entrou_em_campo"]
+            scouts = json[item][j]["scout"]
             rodada_id = str(i)
 
-            dados = (apelido, atleta_id, pontuacao, posicao_id, clube_id, rodada_id, em_Campo, scouts)
-            cursor.execute(query, dados)
+            data.append([atleta_id, apelido, pontuacao, posicao_id, clube_id, scouts, em_Campo, rodada_id])
         break
 
-conn.commit()
-cursor.close()
-conn.close()
+header = ["id", "apelido", "pontuacao", "posicao_id", "clube_id", "scouts", "entrou", "rodada_id"]
+df_pontos = pd.DataFrame(data, columns=header)
+
+
+df_pontos.to_csv("data/jogadores.csv")
 

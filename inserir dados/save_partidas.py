@@ -1,18 +1,15 @@
 import requests
-from config.db import getConnection
+import json
+import pandas as pd
 
-conn = getConnection()
-cursor = conn.cursor()
+data = []
 
-query = "INSERT INTO partidas_historico (local, clube_mandante_id, clube_visitante_id, placar_mandante, placar_visitante, " \
-        "clube_mandante_posicao, clube_visitante_posicao, aproveitamento_mandante, aproveitamento_visitante, rodada_id) " \
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-
-print(query)
-for n in range(1, 8):
+for n in range(1, 22):
     
-    data = requests.get("https://api.cartola.globo.com/partidas/" + str(n))
-    json = data.json()
+    print("Loading Match: " + str(n))
+
+    request = requests.get("https://api.cartola.globo.com/partidas/" + str(n))
+    json = request.json()
 
     for i in (json["partidas"]):
         aprovM = i["aproveitamento_mandante"]
@@ -25,11 +22,13 @@ for n in range(1, 8):
         mandId = i["clube_casa_id"]
         visiId = i["clube_visitante_id"]
         rodadaId = str(n)
-        dados = (local, mandId, visiId, placarM, placarV, posiM, posiV, str(aprovM), str(aprovV), rodadaId)
-        cursor.execute(query, dados)
+        data.append([local, mandId, visiId, placarM, placarV, posiM, posiV, str(aprovM), str(aprovV), rodadaId])
+       
+
+header = ["local", "mandante_id", "visitante_id", "placar_mandante", "placar_visitante", "posicao_mandante", "posicao_visitante", "aproveitamento_mandante", "aproveitamento_visitante", "rodada_id"]
+df_partida = pd.DataFrame(data, columns=header)
 
 
-conn.commit()
-cursor.close()
-conn.close()
+df_partida.to_csv("data/partidas.csv")
+
 

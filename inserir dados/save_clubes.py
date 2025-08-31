@@ -2,8 +2,8 @@ import requests
 import json
 import pandas as pd
 
-data = requests.get("https://api.cartola.globo.com/clubes")
-json = data.json()
+request= requests.get("https://api.cartola.globo.com/clubes")
+json = request.json()
 data = []
 for k in json:
     value = json[k]
@@ -15,7 +15,7 @@ for k in json:
     id = value["id"]
 
     data.append([id, name, abb, slug, surname, fantasy_name])
-header = ["Id", "Nome", "Abreviacao", "Slug", "Apelido", "Nome_Fantasia"]
+header = ["id", "nome", "abreviacao", "slug", "apelido", "nome_fantasia"]
 df_clubes = pd.DataFrame(data, columns=header)
 
 
